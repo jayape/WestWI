@@ -1,0 +1,240 @@
+---
+title: "Database Space"
+author: "John Pertell"
+output: 
+  flexdashboard::flex_dashboard:
+  
+params:
+  server1: "DCICHISQL1\\MISDB"
+  server2: "DCICHISQL2\\MISDB"
+  server3: "DCICORSQL3\\MISDB"
+  server4: "DCICORSQL4\\MISDB"
+  db1: 'mis_db'
+  db2: 'darwin_db'
+  db3: 'dialysis_db'
+---
+
+# Introduction {.sidebar}
+
+```{r, include = FALSE}
+library(RODBC)
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(dygraphs)
+library(xts)
+library(quantmod)
+library(tidyr)
+library(zoo)
+
+myConn <- odbcDriverConnect("driver={SQL Server};
+                            server=PERTELL03;
+                            database=PerfDB_DW;
+                            uid=sa;
+                            pwd=2386J@jp")
+
+db_Size <- sqlFetch(myConn, "TempDBStats")
+
+close(myConn)
+
+db_filtered <- db_Size %>% filter(Servername %in% c('DCICHISQL1\\MISDB', 'DCICHISQL2\\MISDB', 
+                                                    'DCICORSQL3\\MISDB', 'DCICORSQL4\\MISDB'),
+                                  DBName %in% c('mis_db', 'darwin_db','dialysis_db'),
+                                  RunDate >= as.POSIXct('2015-08-22')) %>%
+  select(Servername, RunDate, DBName, Name, TotalSize, UsedSpace, FreeSpace) 
+
+db_filtered$UsedSpace <- (db_filtered$UsedSpace / 1024) / 1024
+```
+
+This report examines the space usage on four SQL instances: 
+
+- `r params$server1` 
+- `r params$server2` 
+- `r params$server3` 
+- `r params$server4` 
+
+It is written in [R Markdown](http://rmarkdown.rstudio.com), an authoring format that enables easy creation of dynamic documents, presentations, and reports from R. R Markdown combines the core syntax of **markdown** (an easy to write plain text format) with embedded **R** code chunks that are run so their output can be included in the final document.
+
+The data comes from DCICHIVMDEV11.
+
+
+# `r params$server1`
+
+### `r params$db1` 
+```{r echo = FALSE}
+db_plot <- db_filtered %>% filter(Servername == params$server1, DBName == params$db1) %>% 
+                           select(RunDate, Name, UsedSpace) %>%
+                           spread(Name, UsedSpace)  
+
+db_plot2 <- read.zoo(db_plot, order.by = db_plot$RunDate)
+dygraph(db_plot2) %>% 
+  dyAxis('y', label = 'Used Space (GB)', valueRange = c(0, 220)) %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyLegend(width = 600) %>%
+  dyRangeSelector()
+```
+
+### `r params$db2` 
+```{r echo = FALSE}
+db_plot <- db_filtered %>% filter(Servername == params$server1, DBName == params$db2) %>% 
+                           select(RunDate, Name, UsedSpace) %>%
+                           spread(Name, UsedSpace)  
+
+db_plot2 <- read.zoo(db_plot, order.by = db_plot$RunDate)
+dygraph(db_plot2) %>% 
+  dyAxis('y', label = 'Used Space (GB)', valueRange = c(0, 120)) %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyLegend(width = 600) %>%
+  dyRangeSelector()
+```
+
+### `r params$db3` 
+```{r echo = FALSE}
+db_plot <- db_filtered %>% filter(Servername == params$server1, DBName == params$db3) %>% 
+                           select(RunDate, Name, UsedSpace) %>%
+                           spread(Name, UsedSpace)  
+
+db_plot2 <- read.zoo(db_plot, order.by = db_plot$RunDate)
+dygraph(db_plot2) %>% 
+  dyAxis('y', label = 'Used Space (GB)', valueRange = c(0, 140)) %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyLegend(width = 600) %>%
+  dyRangeSelector()
+```
+
+
+# `r params$server2`
+
+### `r params$db1` 
+```{r echo = FALSE}
+db_plot <- db_filtered %>% filter(Servername == params$server2, DBName == params$db1) %>% 
+                           select(RunDate, Name, UsedSpace) %>%
+                           spread(Name, UsedSpace)  
+
+db_plot2 <- read.zoo(db_plot, order.by = db_plot$RunDate)
+dygraph(db_plot2) %>% 
+  dyAxis('y', label = 'Used Space (GB)', valueRange = c(0, 220)) %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyLegend(width = 600) %>%
+  dyRangeSelector()
+```
+
+### `r params$db2` 
+```{r echo = FALSE}
+db_plot <- db_filtered %>% filter(Servername == params$server2, DBName == params$db2) %>% 
+                           select(RunDate, Name, UsedSpace) %>%
+                           spread(Name, UsedSpace)  
+
+db_plot2 <- read.zoo(db_plot, order.by = db_plot$RunDate)
+dygraph(db_plot2) %>% 
+  dyAxis('y', label = 'Used Space (GB)', valueRange = c(0, 120)) %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyLegend(width = 600) %>%
+  dyRangeSelector()
+```
+
+
+### `r params$db3` 
+
+```{r echo = FALSE}
+db_plot <- db_filtered %>% filter(Servername == params$server2, DBName == params$db3) %>% 
+                           select(RunDate, Name, UsedSpace) %>%
+                           spread(Name, UsedSpace)  
+
+db_plot2 <- read.zoo(db_plot, order.by = db_plot$RunDate)
+dygraph(db_plot2) %>% 
+  dyAxis('y', label = 'Used Space (GB)', valueRange = c(0, 140)) %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyLegend(width = 600) %>%
+  dyRangeSelector()
+```
+
+
+# `r params$server3`
+
+### `r params$db1` 
+```{r echo = FALSE}
+db_plot <- db_filtered %>% filter(Servername == params$server3, DBName == params$db1) %>% 
+                           select(RunDate, Name, UsedSpace) %>%
+                           spread(Name, UsedSpace)  
+
+db_plot2 <- read.zoo(db_plot, order.by = db_plot$RunDate)
+dygraph(db_plot2) %>% 
+  dyAxis('y', label = 'Used Space (GB)', valueRange = c(0, 220)) %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyLegend(width = 600) %>%
+  dyRangeSelector()
+```
+
+### `r params$db2` 
+```{r echo = FALSE}
+db_plot <- db_filtered %>% filter(Servername == params$server3, DBName == params$db2) %>% 
+                           select(RunDate, Name, UsedSpace) %>%
+                           spread(Name, UsedSpace)  
+
+db_plot2 <- read.zoo(db_plot, order.by = db_plot$RunDate)
+dygraph(db_plot2) %>% 
+  dyAxis('y', label = 'Used Space (GB)', valueRange = c(0, 120)) %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyLegend(width = 600) %>%
+  dyRangeSelector()
+```
+
+### `r params$db3` 
+```{r echo = FALSE}
+db_plot <- db_filtered %>% filter(Servername == params$server3, DBName == params$db3) %>% 
+                           select(RunDate, Name, UsedSpace) %>%
+                           spread(Name, UsedSpace)  
+
+db_plot2 <- read.zoo(db_plot, order.by = db_plot$RunDate)
+dygraph(db_plot2) %>% 
+  dyAxis('y', label = 'Used Space (GB)', valueRange = c(0, 140)) %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyLegend(width = 600) %>%
+  dyRangeSelector()
+```
+
+
+# `r params$server4`
+
+### `r params$db1` 
+```{r echo = FALSE}
+db_plot <- db_filtered %>% filter(Servername == params$server4, DBName == params$db1) %>% 
+                           select(RunDate, Name, UsedSpace) %>%
+                           spread(Name, UsedSpace)  
+
+db_plot2 <- read.zoo(db_plot, order.by = db_plot$RunDate)
+dygraph(db_plot2) %>% 
+  dyAxis('y', label = 'Used Space (GB)', valueRange = c(0, 220)) %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyLegend(width = 600) %>%
+  dyRangeSelector()
+```
+
+### `r params$db2` 
+```{r echo = FALSE}
+db_plot <- db_filtered %>% filter(Servername == params$server4, DBName == params$db2) %>% 
+                           select(RunDate, Name, UsedSpace) %>%
+                           spread(Name, UsedSpace)  
+
+db_plot2 <- read.zoo(db_plot, order.by = db_plot$RunDate)
+dygraph(db_plot2) %>% 
+  dyAxis('y', label = 'Used Space (GB)', valueRange = c(0, 120)) %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyLegend(width = 600) %>%
+  dyRangeSelector()
+```
+
+### `r params$db3` 
+```{r echo = FALSE}
+db_plot <- db_filtered %>% filter(Servername == params$server4, DBName == params$db3) %>% 
+                           select(RunDate, Name, UsedSpace) %>%
+                           spread(Name, UsedSpace)  
+
+db_plot2 <- read.zoo(db_plot, order.by = db_plot$RunDate)
+dygraph(db_plot2) %>% 
+  dyAxis('y', label = 'Used Space (GB)', valueRange = c(0, 140)) %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4) %>% 
+  dyLegend(width = 600) %>%
+  dyRangeSelector()
+```
