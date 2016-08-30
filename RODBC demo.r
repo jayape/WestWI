@@ -31,14 +31,14 @@ close(myConn)
 close(myConn2)
 
 # Use dplyr functions to populate a new data frame. 
-# %>% is the pine operator, used to send one command to another
+# %>% is the pipe operator, used to send one command to another
 # filter is criteria for what observations to return,
 # select is the variables to include
 db_filtered <- db_size %>% filter(Servername %in% c('DCICHISQL1\\MISDB', 'DCICHISQL2\\MISDB', 
                                                     'DCICORSQL3\\MISDB', 'DCICORSQL4\\MISDB'),
                                       DBName %in% c('mis_db', 'darwin_db','dialysis_db'),
                                       RunDate >= as.POSIXct('2015-08-24')) %>%
-                                  select(Servername, RunDate, DBName, Name, TotalSize, UsedSpace, FreeSpace)  
+                           select(Servername, RunDate, DBName, Name, TotalSize, UsedSpace, FreeSpace)  
 
 # Get rid of unneeded factions
 db_filtered$Servername <- factor(db_filtered$Servername)
@@ -55,7 +55,7 @@ ggplot(db_filtered %>% filter(Servername == 'DCICHISQL1\\MISDB'),
        aes(x=RunDate, y=UsedSpace)) + 
   geom_line(aes(color = factor(Name))) + 
   scale_color_discrete(name='DB File') +
-  scale_y_continuous(labels = comma) +
+  #scale_y_continuous(labels = comma) +
   labs(title = 'Database Growth', x = 'Date', y = 'Used Space (GB)')
 
 # Create one image with 4 graphs, one for each servername in db_filtered.
@@ -64,28 +64,28 @@ plot1 <- ggplot(db_filtered %>% filter(Servername == 'DCICHISQL1\\MISDB'),
         aes(x=RunDate, y=UsedSpace)) + 
         geom_line(aes(color = factor(Name))) + 
         scale_color_discrete(name='DB File') +
-        scale_y_continuous(labels = comma) +
+        #scale_y_continuous(labels = comma) +
         labs(title = 'Database Growth For DCICHISQL1', x = 'Date', y = 'Used Space (GB)')
 
 plot2 <- ggplot(db_filtered %>% filter(Servername == 'DCICHISQL2\\MISDB'), 
         aes(x=RunDate, y=UsedSpace)) + 
         geom_line(aes(color = factor(Name))) + 
         scale_color_discrete(name='DB File') +
-        scale_y_continuous(labels = comma) +
-        labs(title = 'Database Growth For DCICHISQL1', x = 'Date', y = 'Used Space (GB)')
+        #scale_y_continuous(labels = comma) +
+        labs(title = 'Database Growth For DCICHISQL2', x = 'Date', y = 'Used Space (GB)')
 
 plot3 <- ggplot(db_filtered %>% filter(Servername == 'DCICORSQL3\\MISDB'), 
         aes(x=RunDate, y=UsedSpace)) + 
         geom_line(aes(color = factor(Name))) + 
         scale_color_discrete(name='DB File') +
-        scale_y_continuous(labels = comma) +
+        #scale_y_continuous(labels = comma) +
         labs(title = 'Database Growth For DCICORSQL3', x = 'Date', y = 'Used Space (GB)')
 
 plot4 <- ggplot(db_filtered %>% filter(Servername == 'DCICORSQL4\\MISDB'), 
         aes(x=RunDate, y=UsedSpace)) + 
         geom_line(aes(color = factor(Name))) + 
         scale_color_discrete(name='DB File') +
-        scale_y_continuous(labels = comma) +
+        #scale_y_continuous(labels = comma) +
         labs(title = 'Database Growth For DCICORSQL4', x = 'Date', y = 'Used Space (GB)')
 
 # Next add the four graph variables to a list
