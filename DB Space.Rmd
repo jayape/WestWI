@@ -55,8 +55,11 @@ This report examines the space usage on four SQL instances:
 
 It is written in [R Markdown](http://rmarkdown.rstudio.com), an authoring format that enables easy creation of dynamic documents, presentations, and reports from R. R Markdown combines the core syntax of **markdown** (an easy to write plain text format) with embedded **R** code chunks that are run so their output can be included in the final document.
 
-The data comes from DCICHIVMDEV11.
+The data is for the 3 largest databases:
 
+- `r params$db1`
+- `r params$db2`
+- `r params$db3`
 
 # `r params$server1`
 

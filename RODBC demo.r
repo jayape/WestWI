@@ -12,8 +12,8 @@ library(gridExtra)
 myConn <- odbcDriverConnect('driver={SQL Server};
                             server=PERTELL03;
                             database=PerfDB_DW;
-                            uid=RDemo;
-                            pwd=RDemo')
+                            uid=sa;
+                            pwd=2386J@jp')
 
 # Could have used an existing ODBC connection
 myConn2 <- odbcConnect('RDemoConnect', 'RDemo', 'RDemo')
@@ -22,7 +22,7 @@ myConn2 <- odbcConnect('RDemoConnect', 'RDemo', 'RDemo')
 db_size <- sqlFetch(myConn, 'TempDBStats')
 
 # Load a data frame based on a query
-db_servers <- sqlQuery(myConn2, "SELECT ServerID, ServerName, SQLInstance 
+db_servers <- sqlQuery(myConn, "SELECT ServerID, ServerName, SQLInstance 
                                  FROM DimServers 
                                  WHERE Monitor = 'C'")
 
@@ -37,7 +37,7 @@ close(myConn2)
 db_filtered <- db_size %>% filter(Servername %in% c('DCICHISQL1\\MISDB', 'DCICHISQL2\\MISDB', 
                                                     'DCICORSQL3\\MISDB', 'DCICORSQL4\\MISDB'),
                                       DBName %in% c('mis_db', 'darwin_db','dialysis_db'),
-                                      RunDate >= as.POSIXct('2015-08-24')) %>%
+                                      RunDate >= as.POSIXct('2015-08-24')) %>% 
                            select(Servername, RunDate, DBName, Name, TotalSize, UsedSpace, FreeSpace)  
 
 # Get rid of unneeded factions
@@ -50,7 +50,9 @@ db_filtered$TotalSize <- (db_filtered$TotalSize / 1024) / 1024
 db_filtered$UsedSpace <- (db_filtered$UsedSpace / 1024) / 1024
 db_filtered$FreeSpace <- (db_filtered$FreeSpace / 1024) / 1024
 
-# Use ggplot from ggplot2 package to create a simple line plot with a few modifications
+head(db_filtered)
+
+# Use ggplot function from ggplot2 package to create a simple line plot with a few modifications
 ggplot(db_filtered %>% filter(Servername == 'DCICHISQL1\\MISDB'), 
        aes(x=RunDate, y=UsedSpace)) + 
   geom_line(aes(color = factor(Name))) + 
