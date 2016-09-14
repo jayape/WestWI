@@ -22,6 +22,7 @@ objects()
 rm(list = objects())
 objects()
 
+
 # concatenation
 a <- c(1,3,5,7,9)
 a
@@ -146,6 +147,7 @@ df
 search()
 View(installed.packages())
 View(available.packages())
+.libPaths()
 install.packages('dplyr', 
                   lib = 'C:/Users/johnp/Documents/R/win-library/3.3',
                   dependencies = TRUE)
@@ -204,9 +206,7 @@ library(RODBC)
 myConn <- odbcDriverConnect("driver={SQL Server};
                             server=PERTELL03;
                             database=ProdReportServer;
-                            uid=Demoman;
-                            pwd=password")
-
+                            Trusted Connection=true")
 
 userData <- sqlFetch(myConn, "users")
 
@@ -214,12 +214,17 @@ userData <- sqlFetch(myConn, "users")
 reportData <- sqlQuery(myConn, "SELECT C.Name, ELS.UserName, ELS.TimeStart, ELS.TimeEnd, ELS.TimeDataRetrieval, 
                        ELS.TimeProcessing, ELS.TimeRendering, ELS.Status, ELS.ByteCount, ELS.[RowCount]
                        FROM Catalog AS C INNER JOIN ExecutionLogStorage AS ELS ON C.ItemID = ELS.ReportID
-                       WHERE ELS.TimeStart BETWEEN '5/2/2016' AND '5/3/2016';")
+                       WHERE ELS.TimeStart BETWEEN '8/1/2016' AND '8/31/2016';")
 
 close(myConn)
+
+object.size(reportData)
+
 head(reportData[, c(1,5)])
 reportData <- reportData[order(-reportData$TimeDataRetrieval),]
 head(reportData[, c(1,5)])
+
+summary(reportData)
 topTen <- head(summary(subset(reportData$Name, reportData$Name != "WakeUpWorld")), 10)
 topTen
 

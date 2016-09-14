@@ -30,8 +30,7 @@ library(zoo)
 myConn <- odbcDriverConnect("driver={SQL Server};
                             server=PERTELL03;
                             database=PerfDB_DW;
-                            uid=sa;
-                            pwd=2386J@jp")
+                            Trusted Connection=true")
 
 db_Size <- sqlFetch(myConn, "TempDBStats")
 
