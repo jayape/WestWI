@@ -2,7 +2,7 @@
 1 + 3
 3 - 2
 6 * 4
-4 / 2
+5 / 2
 5 %/% 2
 5 %% 2
 5 ^ 2
@@ -153,13 +153,14 @@ search()
 View(installed.packages())
 View(available.packages())
 .libPaths()
-install.packages('dplyr', 
+install.packages('abc', 
                   lib = 'C:/Users/johnp/Documents/R/win-library/3.3',
                   dependencies = TRUE)
-library(dplyr, lib.loc = 'C:/Users/johnp/Documents/R/win-library/3.3')
-help (package= 'dplyr')
-help(arrange)
-remove.packages('dplyr')
+
+help (package= 'abc')
+library(abc, lib.loc = 'C:/Users/johnp/Documents/R/win-library/3.3')
+help(getmode)
+remove.packages('abc')
 
 # Working directory
 getwd()
