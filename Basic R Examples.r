@@ -1,6 +1,11 @@
 # Basic math
 1 + 3
+3 - 2
+6 * 4
 4 / 2
+5 %/% 2
+5 %% 2
+5 ^ 2
 
 # Assignment operators. = is can be used but <- is preferred
 a <- 3
@@ -218,7 +223,9 @@ reportData <- sqlQuery(myConn, "SELECT C.Name, ELS.UserName, ELS.TimeStart, ELS.
 
 close(myConn)
 
+# How much memory does the data set require?
 object.size(reportData)
+memory.limit(size = NA)
 
 head(reportData[, c(1,5)])
 reportData <- reportData[order(-reportData$TimeDataRetrieval),]

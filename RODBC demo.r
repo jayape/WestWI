@@ -12,14 +12,15 @@ library(gridExtra)
 myConn <- odbcDriverConnect('driver={SQL Server};
                             server=PERTELL03;
                             database=PerfDB_DW;
-                            uid=sa;
-                            pwd=2386J@jp')
+                            Trusted Connection=true')
 
 # Could have used an existing ODBC connection
 myConn2 <- odbcConnect('RDemoConnect', 'RDemo', 'RDemo')
 
 # Load a table into a data frame
 db_size <- sqlFetch(myConn, 'TempDBStats')
+
+object.size(db_size)
 
 # Load a data frame based on a query
 db_servers <- sqlQuery(myConn, "SELECT ServerID, ServerName, SQLInstance 
