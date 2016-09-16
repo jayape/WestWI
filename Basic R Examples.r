@@ -211,13 +211,13 @@ library(RODBC)
 
 myConn <- odbcDriverConnect("driver={SQL Server};
                             server=PERTELL03;
-                            database=ProdReportServer;
+                            database=DemoDB;
                             Trusted Connection=true")
 
-userData <- sqlFetch(myConn, "users")
+userData <- sqlFetch(myConn, "Catalog")
 
 
-reportData <- sqlQuery(myConn, "SELECT C.Name, ELS.UserName, ELS.TimeStart, ELS.TimeEnd, ELS.TimeDataRetrieval, 
+reportData <- sqlQuery(myConn, "SELECT C.Name, ELS.TimeStart, ELS.TimeEnd, ELS.TimeDataRetrieval, 
                        ELS.TimeProcessing, ELS.TimeRendering, ELS.Status, ELS.ByteCount, ELS.[RowCount]
                        FROM Catalog AS C INNER JOIN ExecutionLogStorage AS ELS ON C.ItemID = ELS.ReportID
                        WHERE ELS.TimeStart BETWEEN '8/1/2016' AND '8/31/2016';")
@@ -242,7 +242,7 @@ plot(topTen)
 filteredNames <- names(topTen)
 
 filteredReports <- (reportData$Name %in% filteredNames)
-filteredData <- reportData[filteredReports, c(1,5:10)]
+filteredData <- reportData[filteredReports, c(1,4:9)]
 
 filteredData$Name <- factor(filteredData$Name)
 filteredData$Status <- factor(filteredData$Status)

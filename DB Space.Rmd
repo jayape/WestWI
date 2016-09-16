@@ -5,10 +5,10 @@ output:
   flexdashboard::flex_dashboard:
   
 params:
-  server1: "DCICHISQL1\\MISDB"
-  server2: "DCICHISQL2\\MISDB"
-  server3: "DCICORSQL3\\MISDB"
-  server4: "DCICORSQL4\\MISDB"
+  server1: "PERTELLSQL1"
+  server2: "PERTELLSQL2"
+  server3: "PERTELLSQL3"
+  server4: "PERTELLSQL4"
   db1: 'mis_db'
   db2: 'darwin_db'
   db3: 'dialysis_db'
@@ -29,15 +29,14 @@ library(zoo)
 
 myConn <- odbcDriverConnect("driver={SQL Server};
                             server=PERTELL03;
-                            database=PerfDB_DW;
+                            database=DemoDB;
                             Trusted Connection=true")
 
-db_Size <- sqlFetch(myConn, "TempDBStats")
+db_Size <- sqlFetch(myConn, "DBStats")
 
 close(myConn)
 
-db_filtered <- db_Size %>% filter(Servername %in% c('DCICHISQL1\\MISDB', 'DCICHISQL2\\MISDB', 
-                                                    'DCICORSQL3\\MISDB', 'DCICORSQL4\\MISDB'),
+db_filtered <- db_Size %>% filter(Servername %in% c('PERTELLSQL1', 'PERTELLSQL2', 'PERTELLSQL3', 'PERTELLSQL4'),
                                   DBName %in% c('mis_db', 'darwin_db','dialysis_db'),
                                   RunDate >= as.POSIXct('2015-08-22')) %>%
   select(Servername, RunDate, DBName, Name, TotalSize, UsedSpace, FreeSpace) 
