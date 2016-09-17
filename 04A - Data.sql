@@ -1,5 +1,5 @@
 -- Simple scripts to work with data from database
-USE ProdReportServer;
+USE DemoDB;
 GO
 
 -- 01: Input simple SQL query and send back to output 
@@ -9,7 +9,6 @@ DECLARE @RScript NVARCHAR(MAX) = N'
 DECLARE @SQLScript NVARCHAR(MAX) = N'
 	SELECT 
 		CAST(C.Name AS VARCHAR(425)) AS Name, 
-		CAST(ELS.UserName AS VARCHAR(260)) AS UserName, 
 		ELS.TimeStart, 
 		ELS.TimeEnd, 
 		ELS.TimeDataRetrieval, 
@@ -21,13 +20,13 @@ DECLARE @SQLScript NVARCHAR(MAX) = N'
 	FROM Catalog AS C 
 	INNER JOIN ExecutionLogStorage AS ELS 
 		ON C.ItemID = ELS.ReportID
-	WHERE ELS.TimeStart BETWEEN ''5/2/2016'' AND ''5/3/2016'';'
+	WHERE ELS.TimeStart BETWEEN ''8/1/2016'' AND ''8/31/2016'';'
 
 EXECUTE sp_execute_external_script
 	@language = N'R',
 	@script = @RScript,
 	@input_data_1 = @SQLScript
-WITH RESULT SETS ((Name VARCHAR(425), UserName VARCHAR(260), TimeStart DATETIME, TimeEnd DATETIME, TimeDataRetrieval INT,
+WITH RESULT SETS ((Name VARCHAR(425),TimeStart DATETIME, TimeEnd DATETIME, TimeDataRetrieval INT,
 				   TimeProcessing INT, TimeRendering INT, Status VARCHAR(40), ByteCount BIGINT, [RowCount] BIGINT));
 GO
 
@@ -39,7 +38,7 @@ DECLARE @RScript NVARCHAR(MAX) = N'
 	filteredNames <- names(topTen)
 
 	filteredReports <- (reportData$Name %in% filteredNames)
-	filteredData <- reportData[filteredReports, c(1,5:10)]
+	filteredData <- reportData[filteredReports, c(1,4:9)]
 
 	filteredData$Name <- factor(filteredData$Name)
 	filteredData$Status <- factor(filteredData$Status)
@@ -55,7 +54,6 @@ DECLARE @RScript NVARCHAR(MAX) = N'
 DECLARE @SQLScript NVARCHAR(MAX) = N'
 	SELECT 
 		CAST(C.Name AS VARCHAR(425)) AS Name, 
-		CAST(ELS.UserName AS VARCHAR(260)) AS UserName, 
 		ELS.TimeStart, 
 		ELS.TimeEnd, 
 		ELS.TimeDataRetrieval, 
@@ -67,7 +65,7 @@ DECLARE @SQLScript NVARCHAR(MAX) = N'
 	FROM Catalog AS C 
 	INNER JOIN ExecutionLogStorage AS ELS 
 		ON C.ItemID = ELS.ReportID
-	WHERE ELS.TimeStart BETWEEN ''5/2/2016'' AND ''5/3/2016'';
+	WHERE ELS.TimeStart BETWEEN ''8/1/2016'' AND ''8/31/2016'';
 '
 
 EXECUTE sp_execute_external_script
@@ -97,7 +95,7 @@ DECLARE @RScript NVARCHAR(MAX) = N'
 	filteredNames <- names(topTen)
 
 	filteredReports <- (reportData$Name %in% filteredNames)
-	filteredData <- reportData[filteredReports, c(1,5:10)]
+	filteredData <- reportData[filteredReports, c(1,4:9)]
 
 	filteredData$Name <- factor(filteredData$Name)
 	filteredData$Status <- factor(filteredData$Status)
@@ -113,7 +111,6 @@ DECLARE @RScript NVARCHAR(MAX) = N'
 DECLARE @SQLScript NVARCHAR(MAX) = N'
 	SELECT 
 		CAST(C.Name AS VARCHAR(425)) AS Name, 
-		CAST(ELS.UserName AS VARCHAR(260)) AS UserName, 
 		ELS.TimeStart, 
 		ELS.TimeEnd, 
 		ELS.TimeDataRetrieval, 
@@ -136,7 +133,7 @@ GO
 
 
 INSERT INTO dbo.TopTenReportAverages
-EXEC dbo.TopTenReports '5/2/2016', '5/3/2016'
+EXEC dbo.TopTenReports '8/1/2016', '8/31/2016'
 GO
 
 SELECT * FROM dbo.TopTenReportAverages
@@ -200,5 +197,5 @@ WITH RESULT SETS((Plot varbinary(max)));
 GO
 
 -- Execute procedure to view results
-EXEC dbo.TopTenReportAveragesPlot '5/2/2016', '5/3/2016';
+EXEC dbo.TopTenReportAveragesPlot '8/1/2016', '8/31/2016';
 GO
