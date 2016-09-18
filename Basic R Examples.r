@@ -148,6 +148,13 @@ df <- rbind(df, c(11,21,31, 41))
 dim(df)
 df
 
+# Missing values
+missing <- c(1, 2,3, NA, 5, 6, NA, NA, 9, 10)
+missing
+is.na(missing)
+mean(missing)
+mean(missing, na.rm = TRUE)
+
 # Packages
 search()
 View(installed.packages())
