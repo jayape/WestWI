@@ -43,12 +43,14 @@ DECLARE @RScript NVARCHAR(MAX) = N'
 	filteredData$Name <- factor(filteredData$Name)
 	filteredData$Status <- factor(filteredData$Status)
 
+	topTenReports <- data.frame(ReportName = names(topTen), Count = topTen)
+
 	d <- data.frame(tapply(filteredData$TimeDataRetrieval, filteredData$Name, mean))
 	d <- cbind(d, tapply(filteredData$TimeProcessing, filteredData$Name, mean))
 	d <- cbind(d, tapply(filteredData$TimeRendering, filteredData$Name, mean))
 	df <- cbind(rownames(d), d)
 	names(df) <- c("ReportName", "AvgDataRetrieval", "AvgProcessing", "AvgRendering")
-
+	df <- merge(topTenReports, df, ''ReportName'')
 	OutputDataSet <- df'
 
 DECLARE @SQLScript NVARCHAR(MAX) = N'
@@ -72,7 +74,7 @@ EXECUTE sp_execute_external_script
 	@language = N'R',
 	@script = @RScript,
 	@input_data_1 = @SQLScript
-WITH RESULT SETS ((ReportName VARCHAR(425), AvgTimeDataRetrieval NUMERIC(10, 5), AvgTimeProcessing NUMERIC(10, 5), AvgTimeRendering NUMERIC(10, 5)));
+WITH RESULT SETS ((ReportName VARCHAR(425), ReportViews INT, AvgTimeDataRetrieval NUMERIC(10, 5), AvgTimeProcessing NUMERIC(10, 5), AvgTimeRendering NUMERIC(10, 5)));
 GO
 
 -- 03: Same as #2 but wrap inside separate procedure.
@@ -100,12 +102,14 @@ DECLARE @RScript NVARCHAR(MAX) = N'
 	filteredData$Name <- factor(filteredData$Name)
 	filteredData$Status <- factor(filteredData$Status)
 
+	topTenReports <- data.frame(ReportName = names(topTen), Count = topTen)
+
 	d <- data.frame(tapply(filteredData$TimeDataRetrieval, filteredData$Name, mean))
 	d <- cbind(d, tapply(filteredData$TimeProcessing, filteredData$Name, mean))
 	d <- cbind(d, tapply(filteredData$TimeRendering, filteredData$Name, mean))
 	df <- cbind(rownames(d), d)
 	names(df) <- c("ReportName", "AvgDataRetrieval", "AvgProcessing", "AvgRendering")
-
+	df <- merge(topTenReports, df, ''ReportName'')
 	OutputDataSet <- df'
 
 DECLARE @SQLScript NVARCHAR(MAX) = N'
@@ -128,7 +132,7 @@ EXECUTE sp_execute_external_script
 	@language = N'R',
 	@script = @RScript,
 	@input_data_1 = @SQLScript
-WITH RESULT SETS ((ReportName VARCHAR(425), AvgTimeDataRetrieval NUMERIC(10, 5), AvgTimeProcessing NUMERIC(10, 5), AvgTimeRendering NUMERIC(10, 5)));
+WITH RESULT SETS ((ReportName VARCHAR(425), ReportViews INT, AvgTimeDataRetrieval NUMERIC(10, 5), AvgTimeProcessing NUMERIC(10, 5), AvgTimeRendering NUMERIC(10, 5)));
 GO
 
 
@@ -159,29 +163,35 @@ DECLARE @RScript NVARCHAR(MAX) = N'
 
 	df <- InputDataSet
 
-	plot1 <- ggplot(df, aes(x=ReportName, y=AvgTimeDataRetrieval)) + 
+	plot1 <- ggplot(df, aes(x=ReportName, y=ReportViews)) + 
+             geom_bar(position="dodge", fill= "lightgreen",  color = "black", stat="identity") +
+             geom_text(aes(label=ReportViews), vjust=0.1, color="black") +
+             ggtitle("Number Of Report Views") +
+             theme(legend.title = element_text(face="italic", size = 14))
+
+	plot2 <- ggplot(df, aes(x=ReportName, y=AvgTimeDataRetrieval)) + 
 			 geom_bar(position="dodge", fill= "lightblue",  color = "black", stat="identity") +
              geom_text(aes(label=format(round(df$AvgTimeDataRetrieval / 1000, 2), nsmall = 2)), vjust=0.1, color="black", 
                            position=position_dodge(.9), size=5) +
              ggtitle("Average Data Retrieval in Seconds") +
              theme(legend.title = element_text(face="italic", size = 14))
 
-	plot2 <- ggplot(df, aes(x=ReportName, y=AvgTimeProcessing)) + 
+	plot3 <- ggplot(df, aes(x=ReportName, y=AvgTimeProcessing)) + 
              geom_bar(position="dodge", fill= "red", color = "black", stat="identity") +
              geom_text(aes(label=format(round(df$AvgTimeProcessing / 1000, 2), nsmall = 2)), vjust=0.1, color="black", 
                            position=position_dodge(.9), size=5) +
              ggtitle("Average Time Processing in Seconds") +
              theme(legend.title = element_text(face="italic", size = 14))
 
-	plot3 <- ggplot(df, aes(x=ReportName, y=AvgTimeRendering)) + 
+	plot4 <- ggplot(df, aes(x=ReportName, y=AvgTimeRendering)) + 
              geom_bar(position="dodge", fill= "yellow",color = "black", stat="identity") +
              geom_text(aes(label=format(round(df$AvgTimeRendering / 1000, 2), nsmall = 2)), vjust=0.1, color="black", 
                            position=position_dodge(.9), size=5) +
              ggtitle("Average Time Rendering in Seconds") +
              theme(legend.title = element_text(face="italic", size = 14))
 
-	plotList <- list(plot1, plot2, plot3)
-	do.call(grid.arrange, plotList)
+	plotList <- list(plot1, plot2, plot3, plot4)
+	do.call(grid.arrange, c(plotList, list(ncol = 1)))
 	
 	dev.off()
 	OutputDataSet <- data.frame(data=readBin(file(image_file, "rb"), what=raw(), n=1e6))'

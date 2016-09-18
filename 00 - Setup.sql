@@ -46,6 +46,7 @@ GO
 
 CREATE TABLE dbo.TopTenReportAverages (
 	ReportName	VARCHAR(425),
+	ReportViews INT,
 	AvgTimeDataRetrieval	NUMERIC(20, 5),
 	AvgTimeProcessing	NUMERIC(20, 5),
 	AvgTimeRendering NUMERIC(20, 5));

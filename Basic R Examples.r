@@ -217,7 +217,7 @@ write.csv(mystandings1, './Data/NHL2016.csv', row.names = FALSE)
 library(RODBC)
 
 myConn <- odbcDriverConnect('driver={SQL Server};
-                            server=PERTELL03;
+                            server=PERTELL04;
                             database=DemoDB;
                             Trusted Connection=true')
 
@@ -280,6 +280,7 @@ library(gridExtra)
 
 plot1 <- ggplot(df, aes(x=ReportName, y=Count)) + 
                 geom_bar(position="dodge", fill= "lightgreen",  color = "black", stat="identity") +
+                geom_text(aes(label=Count), vjust=0.1, color="black") +
                 ggtitle("Number Of Report Views") +
                 theme(legend.title = element_text(face="italic", size = 14))
 
@@ -306,3 +307,5 @@ plot4 <- ggplot(df, aes(x=ReportName, y=AvgRendering)) +
 
 plotList <- list(plot1, plot2, plot3, plot4)
 do.call(grid.arrange, c(plotList, list(ncol = 1)))
+
+?grid.arrange
