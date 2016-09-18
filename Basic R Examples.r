@@ -216,35 +216,41 @@ write.csv(mystandings1, './Data/NHL2016.csv', row.names = FALSE)
 # Connect to a SQL database
 library(RODBC)
 
-myConn <- odbcDriverConnect("driver={SQL Server};
+myConn <- odbcDriverConnect('driver={SQL Server};
                             server=PERTELL03;
                             database=DemoDB;
-                            Trusted Connection=true")
+                            Trusted Connection=true')
 
-userData <- sqlFetch(myConn, "Catalog")
+userData <- sqlFetch(myConn, 'Catalog')
 
 
-reportData <- sqlQuery(myConn, "SELECT C.Name, ELS.TimeStart, ELS.TimeEnd, ELS.TimeDataRetrieval, 
-                       ELS.TimeProcessing, ELS.TimeRendering, ELS.Status, ELS.ByteCount, ELS.[RowCount]
-                       FROM Catalog AS C INNER JOIN ExecutionLogStorage AS ELS ON C.ItemID = ELS.ReportID
-                       WHERE ELS.TimeStart BETWEEN '8/1/2016' AND '8/31/2016';")
+reportData <- sqlQuery(myConn, "SELECT C.Name, 
+                                    ELS.TimeStart, 
+                                    ELS.TimeEnd, 
+                                    ELS.TimeDataRetrieval, 
+                                    ELS.TimeProcessing, 
+                                    ELS.TimeRendering, 
+                                    ELS.Status, 
+                                    ELS.ByteCount, 
+                                    ELS.[RowCount]
+                                FROM Catalog AS C 
+                                INNER JOIN ExecutionLogStorage AS ELS ON C.ItemID = ELS.ReportID
+                                WHERE ELS.TimeStart BETWEEN '8/1/2016' AND '8/31/2016';")
 
 close(myConn)
 
 # How much memory does the data set require?
 object.size(reportData)
-memory.limit(size = NA)
 
 head(reportData[, c(1,5)])
 reportData <- reportData[order(-reportData$TimeDataRetrieval),]
 head(reportData[, c(1,5)])
 
 summary(reportData)
-topTen <- head(summary(subset(reportData$Name, reportData$Name != "WakeUpWorld")), 10)
+topTen <- head(summary(subset(reportData$Name, reportData$Name != 'WakeUpWorld')), 10)
 topTen
 
 plot(topTen)
-
 
 filteredNames <- names(topTen)
 
@@ -254,37 +260,49 @@ filteredData <- reportData[filteredReports, c(1,4:9)]
 filteredData$Name <- factor(filteredData$Name)
 filteredData$Status <- factor(filteredData$Status)
 
+class(topTen)
+topTenReports <- data.frame(ReportName = names(topTen), Count = topTen)
+View(topTenReports)
+
 d <- data.frame(tapply(filteredData$TimeDataRetrieval, filteredData$Name, mean))
 d <- cbind(d, tapply(filteredData$TimeProcessing, filteredData$Name, mean))
 d <- cbind(d, tapply(filteredData$TimeRendering, filteredData$Name, mean))
 df <- cbind(rownames(d), d)
 
-names(df) <- c("ReportName", "AvgDataRetrieval", "AvgProcessing", "AvgRendering")
+names(df) <- c('ReportName', 'AvgDataRetrieval', 'AvgProcessing', 'AvgRendering')
 df
+
+df <- merge(topTenReports, df, 'ReportName')
+View(df)
 
 library(ggplot2)
 library(gridExtra)
 
-plot1 <- ggplot(df, aes(x=ReportName, y=AvgDataRetrieval)) + 
+plot1 <- ggplot(df, aes(x=ReportName, y=Count)) + 
+                geom_bar(position="dodge", fill= "lightgreen",  color = "black", stat="identity") +
+                ggtitle("Number Of Report Views") +
+                theme(legend.title = element_text(face="italic", size = 14))
+
+plot2 <- ggplot(df, aes(x=ReportName, y=AvgDataRetrieval)) + 
                 geom_bar(position="dodge", fill= "lightblue",  color = "black", stat="identity") +
                 geom_text(aes(label=format(round(df$AvgDataRetrieval / 1000, 2), nsmall = 2)), vjust=0.1, color="black", 
                 position=position_dodge(.9), size=5) +
                 ggtitle("Average Data Retrieval in Seconds") +
                 theme(legend.title = element_text(face="italic", size = 14))
 
-plot2 <- ggplot(df, aes(x=ReportName, y=AvgProcessing)) + 
+plot3 <- ggplot(df, aes(x=ReportName, y=AvgProcessing)) + 
                 geom_bar(position="dodge", fill= "red", color = "black", stat="identity") +
                 geom_text(aes(label=format(round(df$AvgProcessing / 1000, 2), nsmall = 2)), vjust=0.1, color="black", 
                 position=position_dodge(.9), size=5) +
                 ggtitle("Average Time Processing in Seconds") +
                 theme(legend.title = element_text(face="italic", size = 14))
 
-plot3 <- ggplot(df, aes(x=ReportName, y=AvgRendering)) + 
+plot4 <- ggplot(df, aes(x=ReportName, y=AvgRendering)) + 
                 geom_bar(position="dodge", fill= "yellow",color = "black", stat="identity") +
                 geom_text(aes(label=format(round(df$AvgRendering / 1000, 2), nsmall = 2)), vjust=0.1, color="black", 
                 position=position_dodge(.9), size=5) +
                 ggtitle("Average Time Rendering in Seconds") +
                 theme(legend.title = element_text(face="italic", size = 14))
 
-plotList <- list(plot1, plot2, plot3)
-do.call(grid.arrange, plotList)
+plotList <- list(plot1, plot2, plot3, plot4)
+do.call(grid.arrange, c(plotList, list(ncol = 1)))
