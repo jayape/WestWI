@@ -28,7 +28,7 @@ library(tidyr)
 library(zoo)
 
 myConn <- odbcDriverConnect("driver={SQL Server};
-                            server=PERTELL03;
+                            server=PERTELL04;
                             database=DemoDB;
                             Trusted Connection=true")
 
