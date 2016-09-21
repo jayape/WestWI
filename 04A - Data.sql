@@ -88,8 +88,6 @@ GO
 CREATE PROCEDURE TopTenReports (@StartDate DATETIME, @EndDate DATETIME)
 AS
 
-TRUNCATE TABLE dbo.TopTenReportAverages;
-
 DECLARE @RScript NVARCHAR(MAX) = N'
 	reportData <- InputDataSet
 
@@ -150,6 +148,8 @@ GO
 
 CREATE PROCEDURE dbo.TopTenReportAveragesPlot (@StartDate DATETIME, @EndDate DATETIME)
 AS
+
+TRUNCATE TABLE dbo.TopTenReportAverages;
 
 INSERT INTO dbo.TopTenReportAverages
 EXEC dbo.TopTenReports @StartDate, @EndDate;
